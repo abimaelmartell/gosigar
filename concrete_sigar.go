@@ -73,3 +73,9 @@ func (c *ConcreteSigar) GetSystemInfo() (SystemInfo, error) {
 	err := s.Get()
 	return s, err
 }
+
+func (c *ConcreteSigar) GetNetworkInfo() (NetworkInfo, error) {
+	n := NetworkInfo{}
+	err := n.Get()
+	return n, err
+}

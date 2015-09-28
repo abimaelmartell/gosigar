@@ -14,6 +14,7 @@ package sigar
 #include <mach/processor_info.h>
 #include <mach/vm_map.h>
 #include <CoreServices/CoreServices.h>
+#include <unistd.h>
 */
 import "C"
 
@@ -361,6 +362,19 @@ func (self *SystemInfo) Get() error {
 
 	self.VendorCodeName = codeName
 	self.Description = fmt.Sprintf("%s %s", self.VendorName, self.VendorCodeName)
+}
+
+func (self *NetworkInfo) Get() error {
+	self.GetForUnix()
+
+	var buf C.char
+	var size C.int
+
+	size = C.int(unsafe.Sizeof(&buf))
+
+	C.getdomainname(&buf, size)
+
+	self.DomainName = C.GoString(&buf)
 
 	return nil
 }
