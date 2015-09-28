@@ -6,9 +6,17 @@ package sigar
 
 /*
 #include <sys/utsname.h>
+#include <unistd.h>
 */
 import "C"
 import "syscall"
+
+import (
+	"io/ioutil"
+	"os"
+	"regexp"
+	"syscall"
+)
 
 func (self *FileSystemUsage) Get(path string) error {
 	stat := syscall.Statfs_t{}
@@ -29,6 +37,7 @@ func (self *FileSystemUsage) Get(path string) error {
 	return nil
 }
 
+
 func (self *SystemInfo) getFromUname() {
 	var unameBuf C.struct_utsname
 	C.uname(&unameBuf)
@@ -39,4 +48,36 @@ func (self *SystemInfo) getFromUname() {
 	self.Machine = C.GoString(&unameBuf.machine[0])
 	self.Arch = C.GoString(&unameBuf.machine[0])
 	self.PatchLevel = "unknown"
+}
+
+func (self *NetworkInfo) GetForUnix() error {
+	resolvFilePath := "/etc/resolv.conf"
+
+	_, err := os.Stat(resolvFilePath)
+
+	if os.IsNotExist(err) == false {
+		resolvFile, _ := ioutil.ReadFile(resolvFilePath)
+
+		regex, _ := regexp.Compile(`nameserver\ (.+)`)
+
+		matches := regex.FindAllString(string(resolvFile), -1)
+
+		for _, v := range matches {
+			if self.PrimaryDns == "" {
+				self.PrimaryDns = v
+			} else if self.SecondaryDns == "" {
+				self.SecondaryDns = v
+			}
+
+		}
+
+	} else {
+		panic(err)
+
+		return nil
+	}
+
+	self.HostName, _ = os.Hostname()
+
+	return nil
 }

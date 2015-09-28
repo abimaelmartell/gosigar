@@ -153,3 +153,12 @@ type SystemInfo struct {
 	VendorName     string
 	VendorCodeName string
 }
+
+type NetworkInfo struct {
+	DefaultGateway          string
+	DefaultGatewayInterface string
+	HostName                string
+	DomainName              string
+	PrimaryDns              string
+	SecondaryDns            string
+}

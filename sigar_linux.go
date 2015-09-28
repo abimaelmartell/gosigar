@@ -2,6 +2,11 @@
 
 package sigar
 
+/*
+#include <unistd.h>
+*/
+import "C"
+
 import (
 	"bufio"
 	"bytes"
@@ -13,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"unsafe"
 )
 
 var system struct {
@@ -380,6 +386,16 @@ func (self *SystemInfo) Get() error {
 
 		self.Description = fmt.Sprintf("%s %s", self.Vendor, self.VendorVersion)
 	}
+}
+
+func (self *NetworkInfo) Get() error {
+	self.GetForUnix()
+
+	var buf C.char
+
+	C.getdomainname(&buf, C.size_t(unsafe.Sizeof(&buf)))
+
+	self.DomainName = C.GoString(&buf)
 
 	return nil
 }
