@@ -139,3 +139,12 @@ type ProcExe struct {
 	Cwd  string
 	Root string
 }
+
+type NetworkInfo struct {
+	DefaultGateway          string
+	DefaultGatewayInterface string
+	HostName                string
+	DomainName              string
+	PrimaryDns              string
+	SecondaryDns            string
+}

@@ -12,6 +12,7 @@ package sigar
 #include <libproc.h>
 #include <mach/processor_info.h>
 #include <mach/vm_map.h>
+#include <unistd.h>
 */
 import "C"
 
@@ -314,6 +315,21 @@ func (self *ProcExe) Get(pid int) error {
 	}
 
 	return kern_procargs(pid, exe, nil, nil)
+}
+
+func (self *NetworkInfo) Get() error {
+	self.GetForUnix()
+
+	var buf C.char
+	var size C.int
+
+	size = C.int(unsafe.Sizeof(&buf))
+
+	C.getdomainname(&buf, size)
+
+	self.DomainName = C.GoString(&buf)
+
+	return nil
 }
 
 // wrapper around sysctl KERN_PROCARGS2
