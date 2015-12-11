@@ -9,7 +9,6 @@ package sigar
 #include <unistd.h>
 */
 import "C"
-import "syscall"
 
 import (
 	"io/ioutil"
