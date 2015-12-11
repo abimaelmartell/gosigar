@@ -59,13 +59,13 @@ func (self *NetworkInfo) GetForUnix() error {
 
 		regex, _ := regexp.Compile(`nameserver\ (.+)`)
 
-		matches := regex.FindAllString(string(resolvFile), -1)
+		matches := regex.FindAllStringSubmatch(string(resolvFile), -1)
 
 		for _, v := range matches {
 			if self.PrimaryDns == "" {
-				self.PrimaryDns = v
+				self.PrimaryDns = v[1]
 			} else if self.SecondaryDns == "" {
-				self.SecondaryDns = v
+				self.SecondaryDns = v[1]
 			}
 
 		}
