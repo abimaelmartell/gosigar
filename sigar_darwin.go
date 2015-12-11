@@ -337,7 +337,7 @@ func (self *SystemInfo) Get() error {
 
 	var codeName string
 
-	switch majorVersion {
+	switch minorVersion {
 	case 2:
 		codeName = "Jaguar"
 	case 3:
@@ -356,8 +356,10 @@ func (self *SystemInfo) Get() error {
 		codeName = "Mavericks"
 	case 10:
 		codeName = "Yosemite"
+	case 11:
+		codeName = "El Capitan"
 	default:
-		// :O
+		codeName = "Unknown"
 	}
 
 	self.VendorCodeName = codeName
