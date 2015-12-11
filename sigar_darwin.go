@@ -2,8 +2,19 @@
 
 package sigar
 
+import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
+	"io"
+	"syscall"
+	"time"
+	"unsafe"
+)
+
 /*
-#cgo LDFLAGS: -framework CoreServices
+#cgo LDFLAGS: -framework Cocoa
+#cgo CFLAGS: -x objective-c
 #include <stdlib.h>
 #include <sys/sysctl.h>
 #include <sys/mount.h>
@@ -15,18 +26,18 @@ package sigar
 #include <mach/vm_map.h>
 #include <CoreServices/CoreServices.h>
 #include <unistd.h>
+#include <Cocoa/Cocoa.h>
+
+NSOperatingSystemVersion SigarGetSystemVersion(void) {
+	NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+
+	return version;
+}
+
 */
 import "C"
 
-import (
-	"bytes"
-	"encoding/binary"
-	"fmt"
-	"io"
-	"syscall"
-	"time"
-	"unsafe"
-)
+
 
 func (self *LoadAverage) Get() error {
 	avg := []C.double{0, 0, 0}
@@ -326,18 +337,14 @@ func (self *SystemInfo) Get() error {
 	self.VendorName = "Mac OS X"
 	self.Vendor = "Apple"
 
-	var majorVersion, minorVersion, bugFixVersion C.SInt32
+	version := C.SigarGetSystemVersion()
 
-	C.Gestalt(C.gestaltSystemVersionMajor, &majorVersion)
-	C.Gestalt(C.gestaltSystemVersionMinor, &minorVersion)
-	C.Gestalt(C.gestaltSystemVersionBugFix, &bugFixVersion)
-
-	self.VendorVersion = fmt.Sprintf("%d.%d", majorVersion, minorVersion)
-	self.Version = fmt.Sprintf("%d.%d.%d", majorVersion, minorVersion, bugFixVersion)
+	self.VendorVersion = fmt.Sprintf("%d.%d", version.majorVersion, version.minorVersion)
+	self.Version = fmt.Sprintf("%d.%d.%d", version.majorVersion, version.minorVersion, version.patchVersion)
 
 	var codeName string
 
-	switch minorVersion {
+	switch version.minorVersion {
 	case 2:
 		codeName = "Jaguar"
 	case 3:
